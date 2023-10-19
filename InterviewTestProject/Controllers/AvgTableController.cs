@@ -9,15 +9,20 @@ namespace InterviewTestProject.Controllers
     public class AvgTableController : ControllerBase
     {
         private readonly ILogger<AvgTableController> _logger;
+        private readonly ApplicationContext _context;
 
-        public AvgTableController(ILogger<AvgTableController> logger) => _logger = logger;
+        public AvgTableController(ILogger<AvgTableController> logger, ApplicationContext context)
+        {
+            _logger = logger;
+            _context = context;
+        }
 
         [HttpGet("getDMAInfo/{tagType}")]
         public IEnumerable<DMATableModel> GetDMA(int tagType)
         {
             try
             {
-                return DBWorker.GetDMATableInfo(tagType);
+                return DBWorker.GetDMATableInfo(_context, tagType);
             }
             catch (Exception ex)
             {
@@ -33,7 +38,7 @@ namespace InterviewTestProject.Controllers
         {
             try
             {
-                return DBWorker.GetSiteTableInfo(tagType);
+                return DBWorker.GetSiteTableInfo(_context, tagType);
             }
             catch (Exception ex)
             {

@@ -1,4 +1,7 @@
+using InterviewTestProject;
+using InterviewTestProject.DataBaseComponents;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Configuration.AddEnvironmentVariables().AddJsonFile("appsettings.json");
+var connection = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING");
+
+builder.Services.AddDbContext<ApplicationContext>(options =>
+    options.UseSqlServer(connection));
 
 var app = builder.Build();
 

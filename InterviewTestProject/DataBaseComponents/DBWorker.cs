@@ -1,22 +1,31 @@
 ﻿using Azure;
 using InterviewTestProject.Enums;
 using InterviewTestProject.Models;
+using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 
 namespace InterviewTestProject.DataBaseComponents
 {
     public static class DBWorker
     {
-        public static IEnumerable<GraphicModel> GetGraphData(int tag = 1, int interval = 0)
+        private static IServiceProvider _serviceProvider;
+
+        public static void Configure(IServiceProvider serviceProvider)
         {
-            using (ApplicationContext db = new ApplicationContext())
+            _serviceProvider = serviceProvider;
+        }
+
+        public static IEnumerable<GraphicModel> GetGraphData(ApplicationContext context, int tag = 1, int interval = 0)
+        {
+            
+            using (context)
             {
                 var tagName = Enum.GetName(typeof(TagTypes), tag).ToLower();
                 var testDate = DateTime.Parse("2021-08-06 20:25:03");
                 switch ((TimeInterval)interval)
                 {
                     case TimeInterval.Hour:
-                        return db.Events
+                        return context.Events
                             .Where(item => item.RegTime >= testDate.AddHours(-1))
                             .GroupBy(p => p.RegTime.Minute)
                             .OrderBy(o => o.Key)
@@ -28,7 +37,7 @@ namespace InterviewTestProject.DataBaseComponents
                             })
                             .ToArray(); 
                     case TimeInterval.Day:
-                        return db.Events
+                        return context.Events
                             .Where(item => item.RegTime >= testDate.AddDays(-1))
                             .GroupBy(p => p.RegTime.Hour)
                             .OrderBy(o => o.Key)
@@ -40,7 +49,7 @@ namespace InterviewTestProject.DataBaseComponents
                             })
                             .ToArray();
                     case TimeInterval.Week:
-                        return db.Events
+                        return context.Events
                             .Where(item => item.RegTime >= testDate.AddDays(-6))
                             .GroupBy(p => p.RegTime.Day)
                             .OrderBy(o => o.FirstOrDefault().RegTime)
@@ -52,7 +61,7 @@ namespace InterviewTestProject.DataBaseComponents
                             })
                             .ToArray();
                     case TimeInterval.Month:
-                        return db.Events
+                        return context.Events
                             .Where(item => item.RegTime >= testDate.AddMonths(-1))
                             .GroupBy(p => p.RegTime.Day)
                             .OrderBy(o => o.FirstOrDefault().RegTime)
@@ -70,12 +79,12 @@ namespace InterviewTestProject.DataBaseComponents
         }
 
         
-        public static IEnumerable<DMATableModel> GetDMATableInfo(int tagId = 1)
+        public static IEnumerable<DMATableModel> GetDMATableInfo(ApplicationContext context, int tagId = 1)
         {
             var tag = Enum.GetName(typeof(TagTypes), tagId).ToLower();
-            using (ApplicationContext db = new ApplicationContext())
+            using (context)
             {
-                return db.Events.GroupBy(i => i.MMDma).Select(item => new DMATableModel
+                return context.Events.GroupBy(i => i.MMDma).Select(item => new DMATableModel
                 {
                     DMA = item.Key,
                     Count = item.Count(),
@@ -87,12 +96,12 @@ namespace InterviewTestProject.DataBaseComponents
             return null;
         }
         
-        public static IEnumerable<SiteTableModel> GetSiteTableInfo(int tagId = 1)
+        public static IEnumerable<SiteTableModel> GetSiteTableInfo(ApplicationContext context, int tagId = 1)
         {
             var tag = Enum.GetName(typeof(TagTypes), tagId).ToLower();
-            using (ApplicationContext db = new ApplicationContext())
+            using (context)
             {
-                return db.Events.GroupBy(i => i.SiteId).Select(item => new SiteTableModel
+                return context.Events.GroupBy(i => i.SiteId).Select(item => new SiteTableModel
                 {
                     SiteId = item.Key,
                     Count = item.Count(),
@@ -103,11 +112,11 @@ namespace InterviewTestProject.DataBaseComponents
             return null;
         }
 
-        public static void AddImmersions(EventModel[] events)
+        public static void AddImmersions(ApplicationContext context, EventModel[] events)
         {
-            using (ApplicationContext db = new ApplicationContext())
+            using (context)
             {
-                db.Events.AddRange(events);
+                context.Events.AddRange(events);
             }
         }
         

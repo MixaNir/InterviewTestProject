@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace InterviewTestProject
 {
@@ -11,12 +12,9 @@ namespace InterviewTestProject
     {
         public DbSet<EventModel> Events { get; set; }
 
-        public ApplicationContext() => Database.EnsureCreated();
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public ApplicationContext(DbContextOptions<ApplicationContext> options): base(options) 
         {
-            
-            optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS; Database=InterviewProject; Trusted_Connection=true; TrustServerCertificate=True");
+            Database.EnsureCreated();
         }
     }
 }

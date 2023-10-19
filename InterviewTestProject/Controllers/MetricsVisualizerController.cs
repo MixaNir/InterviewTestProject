@@ -10,15 +10,20 @@ namespace InterviewTestProject.Controllers
     public class MetricsVisualizerController : ControllerBase
     {
         private readonly ILogger<MetricsVisualizerController> _logger;
+        private readonly ApplicationContext _context;
 
-        public MetricsVisualizerController(ILogger<MetricsVisualizerController> logger) => _logger = logger;
+        public MetricsVisualizerController(ILogger<MetricsVisualizerController> logger, ApplicationContext context)
+        {
+            _logger = logger;
+            _context = context;
+        }
 
         [HttpGet("getGraphData/{tag}/{interval}")]
         public IEnumerable<GraphicModel> GetGraphData(int tag, int interval)
         {
             try
             {
-                return DBWorker.GetGraphData(tag, interval);
+                return DBWorker.GetGraphData(_context, tag, interval);
             }
             catch (Exception ex)
             {

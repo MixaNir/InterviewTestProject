@@ -8,8 +8,13 @@ namespace InterviewTestProject.Controllers
     public class DataProcessController: ControllerBase
     {
         private readonly ILogger<DataProcessController> _logger;
+        private readonly ApplicationContext _context;
 
-        public DataProcessController(ILogger<DataProcessController> logger) => _logger = logger;
+        public DataProcessController(ILogger<DataProcessController> logger, ApplicationContext context)
+        {
+            _logger = logger;
+            _context = context;
+        }
 
         [HttpPost]
         public ActionResult<EventModel> CreateEmployee(EventModel[] events)
@@ -19,7 +24,7 @@ namespace InterviewTestProject.Controllers
                 if (events == null)
                     return BadRequest();
 
-                DBWorker.AddImmersions(events);
+                DBWorker.AddImmersions(_context, events);
 
                 return Ok();
             }
